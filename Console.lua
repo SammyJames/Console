@@ -95,8 +95,14 @@ function Console:Initialize( control )
 
     self.control:SetHandler( 'OnUpdate', function() self:OnUpdate() end )
     self.closeBtn:SetHandler( 'OnClicked', function() self:Hide() end )
-    self.clearBtn:SetHandler( 'OnClicked', function() self.textBuffer:Clear() end )
+    self.clearBtn:SetHandler( 'OnClicked', function() self:OnClear() end )
     self.textBuffer:SetHandler( 'OnMouseWheel', function( ... ) self:OnScroll( ... ) end )
+end
+
+function Console:OnClear()
+    self.textBuffer:Clear() 
+    self.log_lines:Clear()
+    self.last_index = self.log_lines:First()
 end
 
 function Console:IsDirty( flag )
@@ -118,14 +124,13 @@ function Console:OnUpdate()
 
     if ( self:IsDirty( DirtyFlags.FILTER_CHANGED ) ) then
         self.textBuffer:Clear()
-        self.last_index = 1
-        self:AddNewLines()
-        self.last_index = self.log_lines:Last()
+        self.last_index = self.log_lines:First()
+        table.insert( self.dirty_flags, DirtyFlags.NEW_LINES )
     end
 
     if ( self:IsDirty( DirtyFlags.NEW_LINES ) ) then
         self:AddNewLines()
-        self.last_index = self.log_lines:Last()
+        self.last_index = self.log_lines:Last() + 1
     end
 
     self.dirty_flags = {}
@@ -135,7 +140,7 @@ function Console:AddNewLines()
     local color = {}
     local entry = {}
     for i = self.last_index, self.log_lines:Last(), 1 do
-        entry = self.log_lines[ i ]
+        entry = self.log_lines:At( i )
         if ( self.log_level >= entry:GetTag() ) then
             color = LogLevelColors[ entry:GetTag() ]
             self.textBuffer:AddMessage( entry:GetFormatted(), color.r, color.g, color.b, nil )
@@ -186,6 +191,10 @@ function Console:Log( logLevel, fmt, ... )
 
     if ( self.log_lines:Size() > 500 ) then
         self.log_lines:Pop()
+
+        if ( self.last_index == 1 ) then -- we haven't iterated over this yet
+            self.last_index = self.log_level:First()
+        end
     end
 
     self.log_lines:Push( LogLine:New( logLevel, GetTimeString(), fmt:format( ... ) ) )
@@ -230,6 +239,7 @@ end
 -- @tparam table self
 function Pky_Console_Initialized( self )
     CONSOLE = Console:New( self )
+    CONSOLE:Hide()
     SLASH_COMMANDS['/console']  = function( ... ) CONSOLE:Show() end
     SLASH_COMMANDS['/d']        = function( ... ) CONSOLE:Show() end
 end

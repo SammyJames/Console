@@ -37,7 +37,7 @@
                     <Anchor point="TOPLEFT" offsetX="-80" offsetY="30" />
                     <Anchor point="TOPRIGHT" offsetX="80" offsetY="30" />
                 </Texture>
-                <TextBuffer name="$(parent)_Buffer" font="ZoFontChat" maxHistoryLines="200" mouseEnabled="true">
+                <TextBuffer name="$(parent)_Buffer" font="ZoFontChat" maxHistoryLines="500" mouseEnabled="true">
                     <Anchor point="TOPLEFT" offsetX="8" offsetY="30" />
                     <Anchor point="BOTTOMRIGHT" offsetX="-8" offsetY="-35" />
                     <!--<LineFade fadeBegin="60" fadeDuration="2" />-->

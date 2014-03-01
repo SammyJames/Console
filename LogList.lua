@@ -8,8 +8,9 @@
 
 LogList = 
 {
-    first = 0,
-    last = -1, 
+    first = 1,
+    last = 0, 
+    data = {}
 }
 
 function LogList:New( ... )
@@ -26,7 +27,7 @@ end
 
 function LogList:Push( value )
     self.last = self.last + 1
-    self[ self.last ] = value
+    self.data[ self.last ] = value
 end
 
 function LogList:Pop()
@@ -34,8 +35,8 @@ function LogList:Pop()
         return nil
     end
 
-    local value = self[ self.first ]
-    self[ self.first ] = nil
+    local value = self.data[ self.first ]
+    self.data[ self.first ] = nil
 
     self.first = self.first + 1
 end
@@ -50,4 +51,14 @@ end
 
 function LogList:Last()
     return self.last
+end
+
+function LogList:Clear()
+    self.data = {}
+    self.first = 1
+    self.last = 0 
+end
+
+function LogList:At( index )
+    return self.data[ index ]
 end

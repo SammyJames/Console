@@ -1,6 +1,7 @@
 -------------------------------------------------
 -- Console - a debug log
 -- 
+-- @classmod Console
 -- @author Pawkette ( pawkette.heals@gmail.com )
 -- @copyright MIT
 -------------------------------------------------
@@ -16,15 +17,10 @@ LogLevels =
     DEBUG = 5 -- Log Everything
 }
 
----
--- @local
-local LogStrings = 
+local DirtyFlags =
 {
-    '',
-    'INF',
-    'WRN',
-    'ERR',
-    'DBG'
+    NEW_LINES = 1,
+    FILTER_CHANGED = 2
 }
 
 --- 
@@ -66,6 +62,9 @@ _G['debug']   = function( ... ) CONSOLE:LogDebug( ... )   end
 --
 Console = ZO_Object:Subclass()
 Console.log_level = LogLevels.DEBUG
+Console.log_lines = LogList:New()
+Console.dirty_flags = {}
+Console.last_index = 1
 
 function Console:New( ... ) 
     local result = ZO_Object.New( self )
@@ -94,9 +93,54 @@ function Console:Initialize( control )
 
     self.dropDown:SetSelectedItem( LevelToString( self.log_level ) )
 
+    self.control:SetHandler( 'OnUpdate', function() self:OnUpdate() end )
     self.closeBtn:SetHandler( 'OnClicked', function() self:Hide() end )
     self.clearBtn:SetHandler( 'OnClicked', function() self.textBuffer:Clear() end )
     self.textBuffer:SetHandler( 'OnMouseWheel', function( ... ) self:OnScroll( ... ) end )
+end
+
+function Console:IsDirty( flag )
+    if ( not flag ) then return #self.dirty_flags ~= 0 end 
+
+    for k,v in pairs( self.dirty_flags ) do
+        if ( v == flag ) then
+            return true
+        end
+    end
+
+    return false
+end
+
+function Console:OnUpdate()
+    if ( not self:IsDirty() ) then
+        return
+    end
+
+    if ( self:IsDirty( DirtyFlags.FILTER_CHANGED ) ) then
+        self.textBuffer:Clear()
+        self.last_index = 1
+        self:AddNewLines()
+        self.last_index = self.log_lines:Last()
+    end
+
+    if ( self:IsDirty( DirtyFlags.NEW_LINES ) ) then
+        self:AddNewLines()
+        self.last_index = self.log_lines:Last()
+    end
+
+    self.dirty_flags = {}
+end
+
+function Console:AddNewLines()
+    local color = {}
+    local entry = {}
+    for i = self.last_index, self.log_lines:Last(), 1 do
+        entry = self.log_lines[ i ]
+        if ( self.log_level >= entry:GetTag() ) then
+            color = LogLevelColors[ entry:GetTag() ]
+            self.textBuffer:AddMessage( entry:GetFormatted(), color.r, color.g, color.b, nil )
+        end
+    end
 end
 
 --- Show this
@@ -132,19 +176,19 @@ end
 -- @tparam string fmt will convert to string if not a string
 -- @param ...
 function Console:Log( logLevel, fmt, ... )
-    if ( self.log_level < logLevel or self.log_level == LogLevels.NONE ) then
-        return
-    end
-
     if ( type( fmt ) ~= 'string' ) then 
         fmt = tostring( fmt )
     end
 
-    local logLine = '[' .. GetTimeString() .. '][' .. LogStrings[ logLevel ] .. ']: ' .. fmt:format( ... )
+    if ( self.log_level >= logLevel ) then
+        table.insert( self.dirty_flags, DirtyFlags.NEW_LINES )
+    end
 
-    local color = LogLevelColors[ logLevel ]
+    if ( self.log_lines:Size() > 500 ) then
+        self.log_lines:Pop()
+    end
 
-    self.textBuffer:AddMessage( logLine, color.r, color.g, color.b, nil )
+    self.log_lines:Push( LogLine:New( logLevel, GetTimeString(), fmt:format( ... ) ) )
 end
 
 --- Log something under info channel
@@ -179,6 +223,7 @@ end
 -- @tparam LogLevels level
 function Console:SetLogLevel( level )
     self.log_level = level 
+    table.insert( self.dirty_flags, DirtyFlags.FILTER_CHANGED )
 end 
 
 --- Initialize the console in global space

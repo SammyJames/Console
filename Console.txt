@@ -1,5 +1,7 @@
 ## Title: Console - By Pawkette
 ## APIVersion: 100000
 
+LogList.lua
+LogLine.lua
 Console.lua
 Console.xml

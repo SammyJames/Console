@@ -129,7 +129,7 @@ end
 
 --- Log something to the window
 -- @tparam LogLevels logLevel
--- @tparam string format will convert to string if not a string
+-- @tparam string fmt will convert to string if not a string
 -- @param ...
 function Console:Log( logLevel, fmt, ... )
     if ( self.log_level < logLevel or self.log_level == LogLevels.NONE ) then

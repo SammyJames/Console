@@ -185,4 +185,5 @@ end
 -- @tparam table self
 function Pky_Console_Initialized( self )
     CONSOLE = Console:New( self )
+    SLASH_COMMANDS['/console'] = function( ... ) CONSOLE:Show() end
 end

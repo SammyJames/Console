@@ -6,7 +6,7 @@
             <OnInitialized>Pky_Console_Initialized( self )</OnInitialized>
 
             <Controls>
-                <Backdrop name="$(parent)_Background" inherits="ZO_Default/Backdrop" alpha="0.8"/>
+                <Backdrop name="$(parent)_Background" inherits="ZO_DefaultBackdrop" alpha="0.8"/>
                 <Button name="$(parent)_Close" inherits="ZO_CloseButton">
                     <Anchor point="TOPLEFT" offsetX="8" offsetY="8"/>
                 </Button>

@@ -102,7 +102,7 @@ end
 function Console:IsDirty( flag )
     if ( not flag ) then return #self.dirty_flags ~= 0 end 
 
-    for k,v in pairs( self.dirty_flags ) do
+    for _,v in pairs( self.dirty_flags ) do
         if ( v == flag ) then
             return true
         end

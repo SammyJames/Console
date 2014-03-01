@@ -1,0 +1,61 @@
+<GuiXml>
+    <Controls>
+        <TopLevelControl name="Pky_Console" resizeHandleSize="8" mouseEnabled="true" clampedToScreen="true" movable="true">
+            <Dimensions x="600" y="300" />
+            <ClampedToScreenInsets top="-24"/>
+            <OnInitialized>Pky_Console_Initialized( self )</OnInitialized>
+
+            <Controls>
+                <Backdrop name="$(parent)_Background" inherits="ZO_Default/Backdrop" alpha="0.8"/>
+                <Button name="$(parent)_Close" inherits="ZO_CloseButton">
+                    <Anchor point="TOPLEFT" offsetX="8" offsetY="8"/>
+                </Button>
+                <Control name="$(parent)_ComboBox" resizeToFitDescendents="true" mouseEnabled="true">
+                    <Anchor point="TOPRIGHT" offsetX="-8" offsetY="8"/>
+                    <OnInitialized>
+                        ZO_ComboBox:New(self)
+                    </OnInitialized>
+                    <OnMouseUp>
+                        ZO_ComboBox_DropdownClicked(self)
+                    </OnMouseUp>
+                    <Controls>
+                        <Button name="$(parent)OpenDropdown" inherits="ZO_DropdownButton">
+                            <Dimensions x="16" y="16" />
+                            <Anchor point="TOPRIGHT"/>                            
+                            <OnClicked>
+                                ZO_ComboBox_DropdownClicked(self:GetParent())
+                            </OnClicked>
+                        </Button>
+
+                        <Label name="$(parent)SelectedItemText" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED">
+                            <Anchor point="RIGHT" relativeTo="$(parent)OpenDropdown" relativePoint="LEFT" offsetX="-3" />
+                        </Label>
+                    </Controls>
+                </Control>
+                <Texture name="$(parent)_TopDivider" textureFile="EsoUI/Art/Miscellaneous/horizontalDivider.dds">
+                    <Dimensions y="4"/>
+                    <Anchor point="TOPLEFT" offsetX="-80" offsetY="30" />
+                    <Anchor point="TOPRIGHT" offsetX="80" offsetY="30" />
+                </Texture>
+                <TextBuffer name="$(parent)_Buffer" font="ZoFontChat" maxHistoryLines="200" mouseEnabled="true">
+                    <Anchor point="TOPLEFT" offsetX="8" offsetY="30" />
+                    <Anchor point="BOTTOMRIGHT" offsetX="-8" offsetY="-35" />
+                    <!--<LineFade fadeBegin="60" fadeDuration="2" />-->
+                </TextBuffer>
+                <Texture name="$(parent)_BotDivider" textureFile="EsoUI/Art/Miscellaneous/horizontalDivider.dds">
+                    <Dimensions y="4"/>
+                    <Anchor point="BOTTOMLEFT" offsetX="-80" offsetY="-34" />
+                    <Anchor point="BOTTOMRIGHT" offsetX="80" offsetY="-34" />
+                </Texture>/
+                <Button name="$(parent)_Clear" inherits="ZO_DefaultButton">
+                    <Anchor point="BOTTOMRIGHT" offsetX="-2" offsetY="-2"/>
+                    <Controls>
+                        <Label name="$(parent)_Label" text="Clear" font="ZoFontGame">
+                            <Anchor point="CENTER"/>
+                        </Label>
+                    </Controls>
+                </Button>
+            </Controls>
+        </TopLevelControl>
+    </Controls>
+</GuiXml>

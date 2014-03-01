@@ -235,11 +235,27 @@ function Console:SetLogLevel( level )
     table.insert( self.dirty_flags, DirtyFlags.FILTER_CHANGED )
 end 
 
+
+function Console:SlashCommand( text )
+    if ( self.control:IsHidden() ) then
+        self:Show()
+    end
+
+    if ( type( _G[ text ] ) == 'table' ) then
+        for k,v in pairs( _G[ text ] ) do
+            self:LogDebug( k .. ' = ' .. tostring( v ) .. ' ( ' .. type( v ) .. ' )' )
+        end
+    else
+        local func = assert( zo_loadstring( text ) )
+        func()
+    end
+end
+
 --- Initialize the console in global space
 -- @tparam table self
 function Pky_Console_Initialized( self )
     CONSOLE = Console:New( self )
     CONSOLE:Hide()
-    SLASH_COMMANDS['/console']  = function( ... ) CONSOLE:Show() end
-    SLASH_COMMANDS['/d']        = function( ... ) CONSOLE:Show() end
+    SLASH_COMMANDS['/console']  = function( ... ) CONSOLE:SlashCommand( ... ) end
+    SLASH_COMMANDS['/d']        = function( ... ) CONSOLE:SlashCommand( ... ) end
 end

@@ -1,5 +1,6 @@
-## Title: Console - By Pawkette
-## APIVersion: 100000
+## Title: Console
+## Author: |cFF66CCPawkette|r
+## APIVersion: 100010
 
 LogList.lua
 LogLine.lua

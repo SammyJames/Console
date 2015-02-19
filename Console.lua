@@ -198,16 +198,30 @@ function Console:OnScroll( _, delta, ctrl, alt, shift )
     self.textBuffer:SetScrollPosition( self.textBuffer:GetScrollPosition() + delta )
 end
 
---- Log something to the window
--- @tparam LogLevels logLevel
--- @tparam string fmt will convert to string if not a string
--- @param ...
-function Console:Log( logLevel, fmt, ... )
-    if ( type( fmt ) ~= 'string' ) then 
-        fmt = tostring( fmt )
+function Console:RecurseTable( Node, Indent, History )
+    
+    for k,v in pairs( Node ) do
+        local Type = type( v )
+        self:AppendLine( LogLine:New( LogLevels.DEBUG, GetTimeString(), Indent .. '[ ' .. tostring( k ) .. ' : ' .. Type .. ' ] = ' .. tostring( v ) ) )
+
+        if ( Type == 'table' ) then
+            if ( History[ v ] == nil ) then
+                History[ v ] = true
+                self:RecurseTable( v, Indent .. ' ', History )
+            end
+        elseif( Type == 'userdata' ) then
+            if ( History[ v ] == nil ) then
+                History[ v ] = true
+                self:RecurseTable( getmetatable( v ), Indent .. ' ', History )
+            end
+        end
     end
 
-    if ( self.log_level >= logLevel ) then
+    return Result
+end
+
+function Console:AppendLine( Line )
+    if ( self.log_level >= Line.tag ) then
         table.insert( self.dirty_flags, DirtyFlags.NEW_LINES )
     end
 
@@ -219,7 +233,28 @@ function Console:Log( logLevel, fmt, ... )
         end
     end
 
-    self.log_lines:Push( LogLine:New( logLevel, GetTimeString(), fmt:format( ... ) ) )
+     self.log_lines:Push( Line )
+end
+
+--- Log something to the window
+-- @tparam LogLevels logLevel
+-- @tparam string fmt will convert to string if not a string
+-- @param ...
+function Console:Log( logLevel, fmt, ... )
+    local Type = type( fmt )
+    if ( Type == 'table' ) then
+        self:RecurseTable( fmt, '', {} )
+        return
+    elseif ( Type == 'userdata' ) then
+        self:RecurseTable( getmetatable( fmt ), '', {} )
+    end
+
+
+    if ( type( fmt ) ~= 'string' ) then 
+        fmt = tostring( fmt )
+    end
+
+   self:AppendLine( LogLine:New( logLevel, GetTimeString(), fmt:format( ... ) ) )
 end
 
 --- Log something under info channel
